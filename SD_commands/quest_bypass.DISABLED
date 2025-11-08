@@ -1,0 +1,52 @@
+import discord
+from discord.ext import commands
+from discord.ui import Button, View
+
+class QuestBypass(commands.Cog):
+    def __init__(self, bot: discord.Client):
+        self.bot = bot
+
+    @commands.slash_command(
+            description="Авто-выполнение заданий Discord",
+            description_localizations={
+                "ru": "Авто-выполнение заданий Discord",
+                "en-US": "Auto-Complete Discord Quests"  
+            }, 
+            guild_ids=[1251166687445647360, 1253353282580119654]
+            )
+            
+            
+    async def quest_bypass(self, ctx: discord.ApplicationContext):
+        embed = discord.Embed(title="<:quest:1254767092243370066> Авто-выполнение заданий Discord: инструкция <:quest:1254767092243370066>", color=discord.Color.from_rgb(232, 185, 135))
+        embed.add_field(name="1.", value="Откройте Discord (***НА ПК!***) и перейдите в [Склад подарков](<discord://-/settings/inventory>)")
+        embed.add_field(name="2.", value="Нажмите `Ctrl` + `Shift` + `I`", inline=False)
+        embed.add_field(name="3.", value="Откройте консоль и введите туда `Allow pasting` / `Разрешить вставку`", inline=False)
+        embed.add_field(name="4.", value="Скачайте файл `bypass.txt`, скопируйте от туда весь код и вставьте в консоль", inline=False)
+        embed.add_field(name="Предупреждение!", value="Вы должны находиться в голосовом канале с включенным стримом, и с вами должен быть еще 1 человек!\n**Не забудьте взять само задание!**", inline=False)
+        embed.add_field(name="", value="[Оригинальная страница об этом](https://gist.github.com/aamiaa/204cd9d42013ded9faf646fae7f89fbb)")
+        
+        emb2 = discord.Embed(title="Облегчение задачи", description="Зайдите в канал <#1254488752936583270> и нажмите кнопку, и бот зайдет к вам в гс.")
+
+        button = Button(label="Активировать", style=discord.ButtonStyle.green)
+        view = View(button)
+
+        async def btn_callback(interaction: discord.Interaction):
+            channel_id = 1254488752936583270
+            channel = discord.Bot.get_channel(channel_id)
+            if channel:
+                await channel.connect()
+                await interaction.response.send_message("Успешно", ephemeral=True)
+
+        button2 = Button(label="Отключить бота", style=discord.ButtonStyle.red, disabled=True)
+
+
+        view.add_item(button2)
+
+        button.callback = btn_callback
+        
+        await ctx.respond(embed=embed, file=discord.File("files/bypass.txt"), ephemeral=True)
+        await ctx.followup.send(embed=emb2, view=view, ephemeral=True)
+
+
+def setup(bot):
+    bot.add_cog(QuestBypass(bot))

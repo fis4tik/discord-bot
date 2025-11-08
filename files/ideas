@@ -1,0 +1,122 @@
+# class sModal(Modal):
+#     def __init__(self, *args, **kawargs):
+#         super().__init__(*args, **kawargs, title="AKAME")
+
+#         self.add_item(InputText(
+#             label="Укажите свое имя",
+#             placeholder="Помните, изменить имя можно только 1 раз!",
+#             required=False
+#         ))
+
+#     async def callback(self, interaction: discord.Interaction):
+#         item = self.children[0].value
+#         member = interaction.user
+#         current_nick = member.display_name
+
+#         new_nick = f"{current_nick} ({item})"
+
+#         embedsuc = discord.Embed(color=discord.Colour.gold(), title=f"Ваше имя: {new_nick}")
+#         embedwarn = discord.Embed(color=discord.Colour.red(), title=f"Вы не можете больше прописывать эту команду!")
+        
+
+#         await member.edit(nick=new_nick)
+#         await interaction.response.send_message(embed=embedsuc, ephemeral=True)
+#         await interaction.followup.send(embed=embedwarn, ephemeral=True)
+
+        
+         
+# @bot.command(name="изменить_имя", description="Изменить имя на сервере")
+# async def changename(ctx: discord.ApplicationContext):
+#     from discord.ui import Button, View
+#     button = Button(label="ИЗМЕНИТЬ ИМЯ", style=discord.ButtonStyle.green)
+
+
+#     async def CallBack(interaction: discord.Interaction):
+#         await interaction.response.send_modal(sModal())
+
+#     view = View(button)
+
+#     button.callback = CallBack
+
+#     embed = discord.Embed(colour=discord.Color.dark_grey())
+#     embed.add_field(name="Изменить имя", value="Нажмите кнопку `Изменить имя`, чтобы изменить свое имя на сервере\n\n")
+#     embed.set_footer(text="ВНИМАНИЕ! Эту команду можно использовать ТОЛЬКО 1 РАЗ!")
+#     embed.set_author(name="AKAME BOT")
+
+
+#     await ctx.respond(embed=embed, view=view)
+#     logging.error(f" {ctx.author.name} выполнил команду /изменить_имя")
+
+
+
+
+
+
+
+
+    # channel_id = 1254488752936583270
+    # channel = bot.get_channel(channel_id)
+    # if channel:
+    #     await channel.connect()
+    #     print("----\nБот зашел в голосовой канал")
+
+
+
+        if random_c == "Бесспорно." or "Предрешено!" or "Никаких сомнений" or "Определённо - да" or "Можешь быть уверен в этом":
+            color = discord.Color.blue()
+        elif random_c == "Мне кажется — да" or "Вероятнее всего" or "Хорошие перспективы" or "Знаки говорят — да" or "Да":
+            color = discord.Color.green()
+        elif random_c == "Пока не ясно, попробуй снова" or "Спроси позже." or "Лучше не рассказывать" or "Сейчас нельзя предсказать" or "Сконцентрируйся и спроси опять":
+            color = discord.Color.yellow()
+        elif random_c == "Даже не думай" or "Мой ответ — нет" or "По моим данным — нет" or "Перспективы не очень хорошие" or "Весьма сомнительно.":
+            color = discord.Color.red()
+
+
+@bot.command()
+async def roles(ctx):
+    
+    # Определяем максимальную длину названия роли для выравнивания
+    max_role_name_length = max(len(role.name) for role in ctx.guild.roles if role.name != "@everyone")
+    
+    roles_message = ''
+    for role in ctx.guild.roles:
+        if role.name != "@everyone":
+            # Выравниваем название роли по левому краю
+            role_name_aligned = role.name.ljust(max_role_name_length)
+            roles_message += f'{role_name_aligned} :    {len(role.members)} members\n'
+    
+    await ctx.send(f'```{roles_message}```')
+
+
+
+@bot.command()
+async def add_role(ctx: discord.ApplicationContext):
+    fs_embed = discord.Embed(title="Добавление роли `(1/2)`", description="Выберите участника, которому нужно выдать роль", color=discord.Color.embed_background())
+    f_select = discord.ui.Select(placeholder="Выберите участника",select_type=discord.ComponentType.user_select, custom_id="f_select")
+
+    async def select_callback(interaction: discord.Interaction):
+        ss_embed = discord.Embed(title="Добавление роли `(2/2)`", description="Выберите роль, которую надо дать участнику", color=discord.Color.embed_background())
+        s_select = discord.ui.Select(placeholder="Выберите роль", select_type=discord.ComponentType.role_select, custom_id="s_select")
+
+        async def s_callback(interaction: discord.Interaction):
+            user_id = f_select.values[0].id
+            role_id = s_select.values[0].id
+            user = interaction.guild.get_member(int(user_id))
+            role = interaction.guild.get_role(int(role_id))
+            if role.position >= interaction.guild.me.top_role.position:
+                embed = discord.Embed(description="Выбранная роль находится выше роли бота. Перетащите роль бота выше", color=discord.Color.red())
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+            else:
+                await user.add_roles(role)
+                embed = discord.Embed(title="Роль выдана", description=f"**Пользователю:** {user.mention}\n**Роль:** {role.mention}", timestamp=datetime.datetime.now())
+                embed.set_footer(text="ARZ Moderator", icon_url=ctx.guild.me.avatar.url)
+                await interaction.message.edit(embed=embed, view=None)
+
+        s_select.callback = s_callback
+        s_view = discord.ui.View(s_select)
+        await interaction.response.edit_message(embed=ss_embed, view=s_view)
+
+    f_select.callback = select_callback
+    f_view = discord.ui.View(f_select)
+
+    await ctx.respond(embed=fs_embed, view=f_view)

@@ -1,0 +1,25 @@
+import discord
+from discord.ext import commands
+
+
+class Nuke(commands.Cog):
+    def __init__(self, bot: discord.Client):
+        self.bot = bot
+
+
+    @commands.slash_command(description="(ФАН) Запустить бомбу!", guild_ids=[1251166687445647360, 1253353282580119654])
+    async def nuke(self, ctx: discord.ApplicationContext, code: discord.Option(description="Код для запуска бомбы", choices=["SUPERCOED2000", "NUKE-CODE-22458HG", "GUGUGAGASUKKAAA", "KIM-CHIN-IN-23883"])): # type: ignore
+        if code == "NUKE-CODE-22458HG":
+            pic_emb = discord.Embed(color=discord.Color.brand_red())
+            pic_emb.set_image(url="https://t4.ftcdn.net/jpg/00/81/04/91/360_F_81049143_4IuaepvDM34GyK4c2zuNVefU8oVKtYuo.jpg")
+
+            emb = discord.Embed(title=f"{ctx.author.name} ЗАПУСТИЛ ЯДЕРНУЮ БОМБУ!")
+            await ctx.respond(embed=pic_emb)
+            await ctx.send(embed=emb)
+            
+        else:
+            await ctx.respond("Неправильный код!", ephemeral=True)
+
+
+def setup(bot):
+    bot.add_cog(Nuke(bot))
